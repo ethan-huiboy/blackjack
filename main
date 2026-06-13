@@ -1,0 +1,343 @@
+import random
+import time
+import os
+
+# algorithm for clearing the screen in a terminal taken from:
+# https://www.geeksforgeeks.org/clear-screen-python/
+def clear():
+    os.system("clear")
+
+# program rules, how to play, etc using an algorithm for timing taken from:
+# https://www.geeksforgeeks.org/python-time-module/
+
+    # parameter determines if user has played this program for the 1st time
+    # and asks the user if they want a tutorial
+def intro(first_time = True):
+    # if user decides to play the game again, it skips tutorial
+    if not first_time:
+        return
+    
+    print("Welcome to Blackjack! A short and fun card game.\n")
+    
+    tutorial = input("Would you like a tutorial? (Y/N): ")
+    if tutorial.upper() == "Y":
+    # rules on how to play the blackjack program
+        print("\n")
+        time.sleep(1)
+        print("Rules: ")
+        
+        time.sleep(0.5)
+        print(" - The goal of the game is to get a score of 21 or close to 21.\n")
+        
+        time.sleep(0.5)
+        print(" - If the score however exceeds 21, you are 'busted' and you lose.\n")
+        
+        time.sleep(0.5)
+        print(" - You can choose to 'hit' (draw another card) or 'stand' (end your turn)\n")
+        
+        time.sleep(0.5)
+        print(" - The card dealer will draw cards, and based on whoever has the higher score that is") 
+        print("   near or exactly 21 is the winner.\n\n")
+        
+        # card values
+        time.sleep(3)
+        print("If unfamiliar with the card values: ")
+        time.sleep(0.5)
+        print(" - 1-10 are self-explanatory. They are the value of the #.\n")
+        time.sleep(0.5)
+        print(" - Face cards (J Q K) have a value of 10.\n")
+        time.sleep(0.5)
+        print(" - The ace card (A) can have a value of 1 or 11.\n")
+        
+        time.sleep(1.5)
+        print("Let's play!")
+        print("\n")
+    else:
+        # skips rules if answer is "N"
+        time.sleep(1)
+        print("Let's play!")
+        print("\n")
+        
+def card_value(hand):
+    total = 0
+    aces = 0
+    
+    # converts all face cards to value 10
+    for card in hand:
+        if card[0] in ['J', 'Q', 'K']:
+            total += 10
+        
+        # converts ace cards to value of 1 or 11 based on cards in player's hand
+        elif card[0] in ['A']:
+            total += 11
+            aces += 1
+            
+        else:
+            total += int(card[0])
+            
+    # if user has cards including an ace that exceed 21, the ace value will be 1
+    while total > 21 and aces > 0:
+        total -= 10
+        aces -= 1
+    
+    return total    
+            
+# MAIN PROGRAM OF BLACKJACK using an algorithm for timing taken from:
+# https://www.geeksforgeeks.org/python-time-module/
+def play_blackjack(first_time = True):
+    
+    # intro of program/explains rules
+    intro(first_time)
+    time.sleep(2)
+    clear()
+    
+    # list of cards/suits taken from a website for icons:
+    # https://www.alt-codes.net/suit-cards.php
+    card_lst = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
+    suit_lst = ['◊', '♧', '♡', '♤']
+    
+    # generates 52 playing cards
+    deck = [(card, suits) for card in card_lst for suits in suit_lst]
+
+    # deals 2 random cards to both the player and dealer
+    random.shuffle(deck)
+    
+    players_hand = [deck.pop(), deck.pop()]
+    dealers_hand = [deck.pop(), deck.pop()]
+    
+    game_over = False
+    
+    while True:
+        player_score = card_value(players_hand)
+        dealer_score = card_value(dealers_hand)
+        
+        time.sleep(0.5)
+        
+    # first viewing both hands
+        # dealer hand
+        print("------------")
+        print("DEALER'S HAND: ", dealers_hand)
+        time.sleep(0.5)
+        print("SCORE: ", dealer_score)
+        print("\n")
+        
+        # player hand
+        time.sleep(0.5)
+        print("PLAYER'S HAND: ", players_hand)
+        time.sleep(0.5)
+        print("SCORE: ", player_score)
+        print("------------")
+        
+        # boolean to keep track of player's turn
+        # (if player stands, the turn is over)
+        players_turn = True
+        
+        while players_turn:
+            print("<!> PLAYERS TURN <!> ")
+            time.sleep(0.5)
+            
+            choice = input("HIT OR STAND? (H/S): ").strip().upper()
+            
+            if choice == "H":
+                print("\n\n")
+                time.sleep(0.5)
+                
+                print("PLAYER HITS.. ")
+                time.sleep(0.5)
+                
+                new_card = deck.pop()
+                players_hand.append(new_card)
+                player_score = card_value(players_hand)
+                
+                print("------------")
+                time.sleep(0.5)
+                print("PLAYER'S HAND: ", players_hand)
+                time.sleep(0.5)
+                print("SCORE: ", player_score)
+                time.sleep(0.5)
+                print("------------\n")
+        
+
+                if player_score > 21:
+                    # stops turn if bust
+                    players_turn = False
+                    
+                    print("PLAYER BUSTS! DEALER WINS.. (exceeded 21)")
+                    game_over = True
+                    break
+                
+                # if player gets 21
+                elif player_score == 21:
+                    print("BLACKJACK! PLAYER WINS!!")
+                    game_over = True
+                    break
+                
+            # stand option
+            elif choice == "S":
+                # stops turn
+                players_turn = False
+                print("\n\n")
+                time.sleep(0.5)
+                print("PLAYER STANDS.\n")
+                
+                # after player's turn is completed, dealers turn starts
+                time.sleep(0.5)
+                print("\n<!> DEALERS TURN <!>")
+                time.sleep(1.5)
+    
+                # draws until dealer score is more than 17
+                while dealer_score < 17:
+                    time.sleep(1)
+                    print("\nDEALER HITS.. ")
+    
+                    # draws a card
+                    new_card = deck.pop()
+                    dealers_hand.append(new_card)
+                    dealer_score = card_value(dealers_hand)
+                    
+                    # shows updated dealer's hand
+                    print("------------")
+                    time.sleep(0.5)
+                    print("DEALER'S HAND: ", dealers_hand)
+                    time.sleep(0.5)
+                    print("SCORE: ", dealer_score)
+                    time.sleep(0.5)
+                    print("------------\n")
+                    
+                time.sleep(1.5)
+                print("DEALER STANDS.")
+
+            # if users types another character and n    
+            else:
+                time.sleep(0.5)
+                print("Invalid input. Please type H or S.\n")
+                time.sleep(1.5)
+                clear()
+                
+                # redisplays table
+                print("------------")
+                print("DEALER'S HAND: ", dealers_hand)
+                time.sleep(0.5)
+                print("SCORE: ", dealer_score)
+                print("\n")
+            
+                time.sleep(0.5)
+                print("PLAYER'S HAND: ", players_hand)
+                time.sleep(0.5)
+                print("SCORE: ", player_score)
+                time.sleep(0.5)
+                print("------------\n")
+                continue
+
+        # to break out of main loop, using a boolean will end game if player
+        # goes over 21
+        if game_over:
+            break
+            
+    # DEALER BUST/BLACKJACK CHECK
+        # if dealer exceeds 21
+        if dealer_score > 21:
+            print("DEALER BUSTS! PLAYER WINS!!")
+            break
+        
+        # if dealer gets 21
+        if dealer_score == 21:
+            print("BLACKJACK! DEALER WINS.. (dealer has 21)")
+            break
+
+
+# DETERMINES IF PLAYER/DEALER WINS BY COMPARING SCORES
+
+    # determines if player wins, loses, or a tie
+        # if player wins due to closer score to 21
+        if player_score > dealer_score:
+            # dealer hand
+            print("\n\n\nFINAL TABLE:")
+            print("------------")
+            print("DEALER'S HAND: ", dealers_hand)
+            time.sleep(0.5)
+            print("SCORE: ", dealer_score)
+            time.sleep(0.5)
+            
+            # player hand
+            print("\n")
+            print("PLAYER'S HAND: ", players_hand)
+            time.sleep(0.5)
+            print("SCORE: ", player_score)
+            time.sleep(0.5)
+
+            print("------------")
+            print("\n")
+            print("PLAYER WINS!!")
+            break
+        
+        # if dealer wins due to closer score to 21
+        elif player_score < dealer_score:
+            # dealer hand
+            print("\n\n\nFINAL TABLE:")
+            time.sleep(0.5)
+            print("------------")
+            print("DEALER'S HAND: ", dealers_hand)
+            time.sleep(0.5)
+            print("SCORE: ", dealer_score)
+            time.sleep(0.5)
+            print("\n")
+            
+            # player hand
+            print("PLAYER'S HAND: ", players_hand)
+            time.sleep(0.5)
+            print("SCORE: ", player_score)
+            time.sleep(0.5)
+            print("------------")
+            print("\n")
+            
+            print("DEALER WINS.. PLAYER LOSES.. (dealer has higher score)")
+            break
+            
+        # in case of a tie game (same scores)
+        else:
+            # dealer hand
+            print("\n\n\nFINAL TABLE:")
+            print("------------")
+            print("DEALER'S HAND: ", dealers_hand)
+            time.sleep(0.5)
+            print("SCORE: ", dealer_score)
+            time.sleep(0.5)
+            print("\n")
+            
+            # player hand
+            print("PLAYER'S HAND: ", players_hand)
+            time.sleep(0.5)
+            print("SCORE: ", player_score)
+            time.sleep(0.5)
+            print("------------")
+            print("\n")
+            print("TIE GAME! DEALER AND PLAYER DRAW.")
+            break
+
+# game loop
+def game():
+    first_time = True
+    
+    while True:
+        play_blackjack(first_time)
+        # after a round, boolean is set to False; skips tutorial if played again
+        first_time = False
+        
+        # asks the user if they want to play another round after game is over
+        time.sleep(2)
+        again = input("\n\nWould you like to play again? (Y/N): ").strip().upper()
+        
+        # quits program
+        if again != "Y":
+            time.sleep(1)
+            print("\nThanks for playing Blackjack!")
+            break
+        
+        # loops game into another round
+        time.sleep(1)
+        print("Creating new table..")
+        time.sleep(2)
+        clear()
+
+game()
